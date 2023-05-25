@@ -24,6 +24,10 @@
 #include "myimg.h"
 #include "page_start.h"
 #include "esp_spiffs.h"
+#include "nvs_flash.h"
+#include "driver/gpio.h"
+#include "bsp_adc.h"
+#include "button.h"
 
 
 /* Littlevgl specific */
@@ -76,6 +80,236 @@ static void create_demo_application(void);
 // 	closedir(dir);
 // }
 
+void page_switch()
+{
+	uint32_t user_data;
+	user_data = Button_Value;
+
+#if 0
+    if (Button_Value == BT1_LONG || Button_Value == BT3_LONG)
+    {
+        
+    }
+    else
+    {
+        Button_Value = 0;
+    }
+
+    if (user_data == BT1_DOWN || user_data == BT3_DOWN)
+    {
+        switch (Disp)
+        {
+        case Disp_Home:
+            move_task_home(user_data);
+            break;
+        case Disp_Menu:
+            move_task_menu(user_data);
+            break;
+        case Disp_Cam:
+            // move_task_cam(user_data);
+            break;
+        case Disp_Color:
+            move_task_color(user_data);
+            break;
+        case Disp_Face:
+            ((user_data == BT1_DOWN) ? (g_state = START_DELETE) : (g_state = START_RECOGNITION));
+            // move_task_cam(user_data);
+            break;
+        case Disp_Baidu:
+            move_task_baiduai(user_data);
+            break;
+        case Disp_FFT:
+            move_task_fft(user_data);
+            break;
+        case Disp_Daily:
+            move_task_daily(user_data);
+            break;
+        case Disp_Game_2048:
+            move_task_game_2048(user_data);
+            break;
+        case Disp_Game_Snake:
+            move_task_game_snake(user_data);
+            break;
+        case Disp_Calendar:
+            // move_task_calendar(user_data);
+            encoder_handler((user_data == BT1_DOWN) ? 2 : 3);
+            break;
+        case Disp_Setting:
+            encoder_handler((user_data == BT1_DOWN) ? 2 : 3);
+            // move_task_calendar(user_data);
+            break;
+        default:
+            break;
+        }
+    }
+    else if (user_data == BT1_LONG || user_data == BT3_LONG)
+    {
+        switch (Disp)
+        {
+        case Disp_Home:
+            // move_task_home(user_data);
+            break;
+        case Disp_Menu:
+
+            move_task_menu(user_data);
+            break;
+        case Disp_Cam:
+            // move_task_cam(user_data);
+            break;
+        case Disp_Color:
+            // move_task_color(user_data);
+            break;
+        case Disp_Face:
+            // ((user_data == BT1_DOWN) ? (g_state = START_DELETE) : (g_state = START_RECOGNITION));
+            // move_task_cam(user_data);
+            break;
+        case Disp_Baidu:
+
+            // move_task_baiduai(user_data);
+            break;
+        case Disp_Daily:
+            move_task_daily(user_data);
+            break;
+
+        case Disp_Calendar:
+            // move_task_calendar(user_data);
+            // encoder_handler((user_data == BT1_DOWN) ? 2 : 3);
+            break;
+        case Disp_Setting:
+            encoder_handler((user_data == BT1_LONG) ? 2 : 3);
+            // move_task_calendar(user_data);
+            break;
+        default:
+            break;
+        }
+    }
+    else if (user_data == BT2_DOWN)
+    {
+        switch (Disp)
+        {
+        case Disp_Home:
+            // move_task_home(user_data);
+
+            break;
+        case Disp_Menu:
+            page_menu_end();
+            page_manage[Menu_Choose()].start();
+            Disp = Menu_Choose();
+            switch (Menu_Choose())
+            {
+            case Disp_Cam:
+                cam_en = 1;
+                break;
+            case Disp_Color:
+                cam_en = 1;
+                color_en = 1;
+                break;
+            case Disp_Face:
+                face_en = 1;
+                g_state = START_RECOGNITION;
+                xTaskCreatePinnedToCore(&Face_DEC, "Face_DEC", 1024 * 4, NULL, 5, NULL, 0);
+                break;
+            case Disp_Baidu:
+                baiduai_en = 1;
+                break;
+            case Disp_FFT:
+                fft_en = 1;
+                xTaskCreatePinnedToCore(&FFT_Task, "FFT_Task", 1024 * 8, NULL, 6, NULL, 0);
+                break;
+            case Disp_About:
+
+                break;
+
+            default:
+                break;
+            }
+            break;
+        case Disp_Face:
+            // move_task_cam(user_data);
+            g_state = START_ENROLL;
+            break;
+        case Disp_Daily:
+            move_task_daily(user_data);
+            break;
+        case Disp_Calendar:
+            // move_task_calendar(user_data);
+            encoder_handler(1);
+            break;
+        case Disp_Setting:
+            encoder_handler(1);
+            // move_task_calendar(user_data);
+            break;
+        case Disp_Baidu:
+            move_task_baiduai(user_data);
+            break;
+        default:
+            break;
+        }
+    }
+    else if (user_data == BT1_DOUBLE || user_data == BT3_DOUBLE)
+    {
+        switch (Disp)
+        {
+        case Disp_Game_2048:
+            move_task_game_2048(user_data);
+            break;
+        case Disp_Game_Snake:
+            move_task_game_snake(user_data);
+            break;
+            default:
+            break;
+            // if (Disp != Disp_Menu && Disp != Disp_Home)
+            // {
+            // 	page_manage[Menu_Choose()].end();
+            // 	page_menu_start();
+            // 	Disp = Disp_Menu;
+            // }
+        }
+    }
+    else if (user_data == BT2_LONG)
+    {
+        if (Disp == Disp_Menu || Disp == Disp_Home)
+        {
+            static uint8_t set = 1;
+            if (set)
+            {
+                ksdiy_sys_t.state.sys_button = 1; //使用lvgl按键机制
+                page_home_end();
+                page_menu_start();
+                Disp = Disp_Menu;
+                set = 0;
+            }
+            else
+            {
+                ksdiy_sys_t.state.sys_button = 0; //退出lvgl按键机制
+                page_menu_end();
+                page_home_start();
+                Disp = Disp_Home;
+                set = 1;
+            }
+        }
+        else
+        {
+            cam_en = 0, color_en = 0, face_en = 0;
+            page_manage[Menu_Choose()].end();
+            page_menu_start();
+            Disp = Disp_Menu;
+        }
+    }
+    printf("Disp: %d\n", Disp);
+#endif
+}
+
+void button_task(void *arg)
+{
+	Button_Init();
+	while (1)
+	{
+		Button_Process();
+		vTaskDelay(30 / portTICK_PERIOD_MS);
+	}
+}
+
 /**********************
  *   APPLICATION MAIN
  **********************/
@@ -105,10 +339,25 @@ void app_main() {
     }
 	// SPIFFS_Directory("/spiffs/");
 
+    // Initialize NVS
+	ret = nvs_flash_init();
+	if (ret == ESP_ERR_NVS_NO_FREE_PAGES)
+	{
+		ESP_ERROR_CHECK(nvs_flash_erase());
+		ret = nvs_flash_init();
+	}
+
+	ESP_ERROR_CHECK(ret);
+
     /* If you want to use a task to create the graphic, you NEED to create a Pinned task
      * Otherwise there can be problem such as memory corruption and so on.
      * NOTE: When not using Wi-Fi nor Bluetooth you can pin the guiTask to core 0 */
     xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 0, NULL, 1);
+
+    adc_init();
+	// ESP_LOGI("esp-eye", "Please say 'Hi LeXin' to the board");
+	// ESP_LOGI("esp-eye", "Version " VERSION);
+	xTaskCreatePinnedToCore(&button_task, "button_task", 1024 * 2, NULL, 18, NULL, 0);
 }
 
 /* Creates a semaphore to handle concurrent call to lvgl stuff
@@ -194,7 +443,7 @@ static void guiTask(void *pvParameter) {
     while (1) {
         /* Delay 1 tick (assumes FreeRTOS tick is 10ms */
         vTaskDelay(pdMS_TO_TICKS(10));
-
+        page_switch();
         /* Try to take the semaphore, call lvgl related function on success */
         if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
             lv_task_handler();
