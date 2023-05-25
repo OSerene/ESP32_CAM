@@ -1,0 +1,10 @@
+idf_component_register(SRCS "main.c"
+                            "./page/app_anim.c"
+                            "./page/page_start.c"
+                            "./page/spage.c"
+                            "./page"
+                            "../components/lv_lib_png/lv_png.c"
+                            "../components/lv_lib_png/lodepng.c"
+                            "../components/lv_lib_png/png_decoder_test.c"
+                       INCLUDE_DIRS "./page"
+                                    "../components/lv_lib_png" )
