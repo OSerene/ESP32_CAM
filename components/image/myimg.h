@@ -1,3 +1,12 @@
+/*** 
+ * @Descripttion :  
+ * @version      :  
+ * @Author       : Kevincoooool
+ * @Date         : 2021-06-08 11:16:31
+ * @LastEditors  : Kevincoooool
+ * @LastEditTime : 2021-06-10 09:51:12
+ * @FilePath     : \esp-idf\KSDIY_ESPCAM\components\img\myimg.h
+ */
 
 #ifndef _MYIMG_
 #define _MYIMG_
@@ -8,22 +17,12 @@ extern "C" {
 /*********************
 * INCLUDES
 *********************/
-// #ifdef LV_CONF_INCLUDE_SIMPLE
-// #include "lvgl.h"
-// #else
-// #include "../../lvgl/lvgl.h"
-// #include "../../lv_ex_conf.h"
-// #endif
-
-/* Littlevgl specific */
-#ifdef LV_LVGL_H_INCLUDE_SIMPLE
+#ifdef LV_CONF_INCLUDE_SIMPLE
 #include "lvgl.h"
 #else
-#include "../lvgl/lvgl.h"
+#include "../../lvgl/lvgl.h"
+#include "../../lv_ex_conf.h"
 #endif
-
-#include "lvgl_helpers.h"
-
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

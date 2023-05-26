@@ -82,7 +82,7 @@ void start_logo()
 	ESP_LOGE("start_logo", "22222222!\n");
 	lv_label_set_recolor(label_speech, true);				 /*Enable re-coloring by commands in the text*/
 	lv_label_set_align(label_speech, LV_LABEL_ALIGN_CENTER); /*Center aligned lines*/
-	lv_label_set_text(label_speech, "徐进文 DIY");
+	lv_label_set_text(label_speech, "徐进文哈哈 DIY");
 	lv_obj_set_width(label_speech, 150);
 	lv_obj_align(label_speech, NULL, LV_ALIGN_CENTER, 0, 30);
 

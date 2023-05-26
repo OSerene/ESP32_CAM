@@ -14,6 +14,8 @@
 #include "esp_system.h"
 #include "esp_log.h"
 
+#include "../spi_flash/include/esp_partition.h"
+
 // #include "esp_vfs.h"
 // #include "esp_spiffs.h"
 
@@ -39,13 +41,23 @@ typedef struct
 	uint8_t r;
 } glyph_dsc_t;
 
+#if 0
 static x_header_t __g_xbf_hd = {
 	.min = 0x0020,
 	.max = 0xff1a,
 	.bpp = 4,
 };
+#endif
+static x_header_t __g_xbf_hd = {
+    .min = 0x000a,
+    .max = 0x9fa0,
+    .bpp = 4,
+};
+
 char *Font_buff = NULL;
-// static uint8_t __g_font_buf[240]; //如bin文件存在SPI FLASH可使用此buff
+static uint8_t __g_font_buf[240]; //如bin文件存在SPI FLASH可使用此buff
+static esp_partition_t* partition_font = NULL;
+#if 0 // do not use spiffs manage font, use SPI FLASH to save font 
 static void init_font(void)
 {
 	FILE *ff = fopen("/spiffs/myFont.bin", "r");
@@ -87,10 +99,13 @@ static void init_font(void)
 	ESP_LOGI("init_font", "Bytes read %d", br);
 	fclose(ff);
 }
+#endif
+
 static uint8_t *__user_font_getdata(int offset, int size)
 {
 	//如字模保存在SPI FLASH, SPIFLASH_Read(__g_font_buf,offset,size);
 	//如字模已加载到SDRAM,直接返回偏移地址即可如:return (uint8_t*)(sdram_fontddr+offset);
+#if 0
 	static uint8_t first_in = 1;
 	if (first_in == 1)//第一次进入的时候初始化外部字体
 	{
@@ -99,6 +114,20 @@ static uint8_t *__user_font_getdata(int offset, int size)
 	}
 	return (uint8_t*)(Font_buff+offset);
 	// return __g_font_buf;
+#endif
+
+    if( partition_font == NULL ) 
+	{
+        partition_font = esp_partition_find_first(0x50, 0x32, "myFont");
+        assert(partition_font != NULL);
+    }
+
+    esp_err_t err = esp_partition_read(partition_font, offset, __g_font_buf, size);//读取数据
+    if(err != ESP_OK)
+	{
+        printf("Failed to reading cn font date\n");
+    } 
+	return __g_font_buf;
 }
 
 static const uint8_t *__user_font_get_bitmap(const lv_font_t *font, uint32_t unicode_letter)

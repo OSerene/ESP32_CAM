@@ -29,6 +29,18 @@
 #include "bsp_adc.h"
 #include "button.h"
 
+// #include "page_baiduai.h"
+#include "page_menu.h"
+// #include "page_daily.h"
+// #include "page_calendar.h"
+// #include "page_start.h"
+// #include "page_game_2048.h"
+// #include "page_game_snake.h"
+// #include "page_tab.h"
+// #include "page_cam.h"
+#include "page_home.h"
+// #include "page_fft.h"
+
 
 /* Littlevgl specific */
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
@@ -80,12 +92,18 @@ static void create_demo_application(void);
 // 	closedir(dir);
 // }
 
+extern struct _ksdiy_sys_t ksdiy_sys_t;
+// extern page_t page_manage[8];
+// static Display_Page Disp = Disp_Home; //当前界面
+static Display_Page Disp = Disp_Menu; //当前界面
+// extern uint8_t fft_en;
+
 void page_switch()
 {
 	uint32_t user_data;
 	user_data = Button_Value;
 
-#if 0
+#if 1
     if (Button_Value == BT1_LONG || Button_Value == BT3_LONG)
     {
         
@@ -99,12 +117,14 @@ void page_switch()
     {
         switch (Disp)
         {
-        case Disp_Home:
-            move_task_home(user_data);
-            break;
+        // case Disp_Home:
+        //     move_task_home(user_data);
+        //     break;
         case Disp_Menu:
+            ESP_LOGI("Disp_Menu", "case Disp_Menu:");
             move_task_menu(user_data);
             break;
+#if 0
         case Disp_Cam:
             // move_task_cam(user_data);
             break;
@@ -138,10 +158,12 @@ void page_switch()
             encoder_handler((user_data == BT1_DOWN) ? 2 : 3);
             // move_task_calendar(user_data);
             break;
+#endif
         default:
             break;
         }
     }
+#if 0
     else if (user_data == BT1_LONG || user_data == BT3_LONG)
     {
         switch (Disp)
@@ -297,6 +319,8 @@ void page_switch()
         }
     }
     printf("Disp: %d\n", Disp);
+#endif
+
 #endif
 }
 
