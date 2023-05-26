@@ -1,24 +1,54 @@
 
-#include "page_start.h"
 #include "myimg.h"
 #include "lvgl_compment.h"
+#include "page_start.h"
+#include "spage.h"
+// #include "app_wifi.h"
+// #include "app_camera.h"
 #include "lv_png.h"
-
-
+// #include "page_baiduai.h"
+lv_obj_t *scr;
+lv_obj_t *scr_body;
+lv_obj_t *cont_head;
 LV_FONT_DECLARE(myFont);
 LV_IMG_DECLARE(kevin); //哔哩哔哩图片
 LV_IMG_DECLARE(coooool);
-// LV_IMG_DECLARE(kevincoooool);
-
-extern const lv_img_dsc_t kevin;
-extern const lv_img_dsc_t coooool;
-extern lv_font_t myFont;
-
-lv_obj_t *scr;
-lv_obj_t *scr_body;
-// lv_obj_t *cont_head;
-lv_obj_t *img22 = NULL, *img33 = NULL, *img44 = NULL;
+LV_IMG_DECLARE(kevincoooool);
+// LV_IMG_DECLARE(airkiss);					  //微信配网
+// extern EventGroupHandle_t s_wifi_event_group; //wifi事件组
+// extern const int CONNECTED_BIT;
+// extern const int ESPTOUCH_DONE_BIT;
+// extern const int WIFI_SMART;
+// extern const int WIFI_CONNET_BIT;
+// extern const int MQTT_CONNET_BIT;
+struct //loge界面元素
+{
+	lv_obj_t *label_smartconfig;
+	lv_obj_t *bar_sys;
+	lv_obj_t *label_rate;
+} page_logo;
+struct _ksdiy_sys_t ksdiy_sys_t;
 compment_t c22, c33, c44, cwx, canim;
+lv_img_dsc_t img_home = {
+	.header.always_zero = 0,
+	.header.w = 240,
+	.header.h = 240,
+	.data_size = 240 * 240 * 2,
+	.header.cf = LV_IMG_CF_TRUE_COLOR_ALPHA,
+	.data = NULL,
+};
+lv_img_dsc_t img_airkiss = {
+	.header.always_zero = 0,
+	.header.w = 240,
+	.header.h = 240,
+	.data_size = 240 * 240 * 2,
+	.header.cf = LV_IMG_CF_TRUE_COLOR_CHROMA_KEYED,
+	.data = NULL,
+};
+char *bg_buff = NULL;
+char *airkiss_buff = NULL;
+
+lv_obj_t *Imgbg;
 
 void ks_esp_cam_init()
 {
@@ -66,8 +96,11 @@ void ks_esp_cam_init()
 	// }
 }
 
+lv_obj_t *img22 = NULL, *img33 = NULL, *img44 = NULL;
+
 void start_logo()
 {
+#if 0
 	// lv_obj_t *obj1 = lv_obj_create(lv_scr_act());
 	
 	// lv_obj_t* btn1 = lv_btn_create(lv_scr_act(), NULL);
@@ -100,10 +133,10 @@ void start_logo()
 	// 	const static char *TAG = "segger_rtt";
 	// 	ESP_LOGE(TAG, "Success to open file for reading!\n");
 	// }
+#endif
 
-#if 0
+#if 1
 
-#if 0
 	lv_obj_clean(scr_body);
 	img22 = lv_img_create(scr_body, NULL);
 	lv_img_set_src(img22, &kevin);
@@ -135,7 +168,7 @@ void start_logo()
 
 	obj_move(&c22, 1);
 	ANIEND
-#endif
+
 	lv_obj_clean(scr_body);
 	//设置文本
 	lv_obj_t *label_speech = lv_label_create(scr_body, NULL);
@@ -151,6 +184,140 @@ void start_logo()
 
 #endif
 }
+
+void fans_rate()
+{
+	lv_label_set_text(page_logo.label_rate, "获取粉丝");
+	lv_obj_align(page_logo.label_rate, NULL, LV_ALIGN_CENTER, 0, 30);
+	// read_fans();
+}
+void time_rate()
+{
+	lv_label_set_text(page_logo.label_rate, "获取时间");
+	lv_obj_set_hidden(page_logo.bar_sys, 0);
+	lv_obj_set_hidden(page_logo.label_rate, 0);
+	lv_obj_align(page_logo.label_rate, NULL, LV_ALIGN_CENTER, 0, 30);
+	lv_task_handler();
+	// time_init();
+}
+void weather_rate()
+{
+	lv_label_set_text(page_logo.label_rate, "获取天气");
+	lv_obj_align(page_logo.label_rate, NULL, LV_ALIGN_CENTER, 0, 30);
+	// read_weather();
+}
+
+void show_rate(void (*fun)(), uint8_t rate)
+{
+	fun();
+	lv_bar_set_value(page_logo.bar_sys, rate, LV_ANIM_ON);
+	ANIEND
+}
+void start_rate()
+{
+	lv_label_set_text(page_logo.label_rate, "加载驱动");
+	lv_obj_align(page_logo.label_rate, NULL, LV_ALIGN_CENTER, 0, 30);
+}
+void ocr_rate()
+{
+	lv_label_set_text(page_logo.label_rate, "获取文字Token");
+	lv_obj_align(page_logo.label_rate, NULL, LV_ALIGN_CENTER, 0, 30);
+	// app_camera_init();
+	// get_ocr_token(); //获取百度识图token
+
+	
+}
+/**
+ * @Descripttion: 百度识图token进度
+ * @param {*}
+ * @return {*}
+ * @Author: Kevincoooool
+ */
+void img_rate()
+{
+	lv_label_set_text(page_logo.label_rate, "获取识图Token");
+	lv_obj_align(page_logo.label_rate, NULL, LV_ALIGN_CENTER, 0, 30);
+	// app_camera_init();
+	// get_img_token(); //获取文字识别token
+
+	
+}
+
+
+/**
+ * @descripttion: 百分比显示
+ * @param {*}
+ * @return {*}
+ * @author: 
+ */
+void dev_init()
+{
+	show_rate(start_rate, 5);
+	// show_rate(wifi_rate, 25);
+
+	show_rate(time_rate, 50);
+	show_rate(fans_rate, 60);
+	show_rate(weather_rate, 70);
+	show_rate(ocr_rate, 80);
+	vTaskDelay(3000);
+	show_rate(img_rate, 100);
+}
+/**
+ * @Descripttion: 创建进度条和显示文本
+ * @param {*}
+ * @return {*}
+ * @Author: 
+ */
+void ksdiy_sys_init()
+{
+
+	static lv_style_t bar_bg;
+	lv_style_init(&bar_bg);
+	page_logo.bar_sys = lv_bar_create(scr_body, NULL);
+	lv_obj_set_size(page_logo.bar_sys, 150, 15);
+	lv_obj_align(page_logo.bar_sys, NULL, LV_ALIGN_CENTER, 0, 80);
+	lv_style_set_radius(&bar_bg, LV_STATE_DEFAULT, 10);
+	lv_style_set_bg_opa(&bar_bg, LV_STATE_DEFAULT, 255);
+	lv_style_set_bg_color(&bar_bg, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+	lv_style_set_bg_grad_color(&bar_bg, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+	lv_style_set_bg_grad_dir(&bar_bg, LV_STATE_DEFAULT, LV_GRAD_DIR_VER);
+	lv_obj_add_style(page_logo.bar_sys, LV_BAR_PART_BG, &bar_bg);
+	lv_bar_set_anim_time(page_logo.bar_sys, 200);
+
+	//设置文本
+	page_logo.label_rate = lv_label_create(scr_body, NULL);
+	static lv_style_t label_shadow_style;
+	lv_style_init(&label_shadow_style);
+	lv_style_set_text_opa(&label_shadow_style, LV_STATE_DEFAULT, 255);
+	lv_style_set_text_color(&label_shadow_style, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+
+	lv_obj_set_style_local_text_font(page_logo.label_rate, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &myFont);
+	lv_label_set_recolor(page_logo.label_rate, true);				 /*Enable re-coloring by commands in the text*/
+	lv_label_set_align(page_logo.label_rate, LV_LABEL_ALIGN_CENTER); /*Center aligned lines*/
+	lv_obj_set_height(page_logo.label_rate, 10);
+	lv_obj_set_width(page_logo.label_rate, 150);
+	lv_obj_add_style(page_logo.label_rate, LV_LABEL_PART_MAIN, &label_shadow_style);
+	dev_init();
+	ANIEND
+}
+/**
+ * @Descripttion: 删除本页面
+ * @param {*}
+ * @return {*}
+ * @Author: 
+ */
+void del_page()
+{
+	obj_move(&c22, 0);
+	ANIEND
+	lv_obj_clean(scr_body); //删除scr_body
+	move_free(&c22);
+}
+
+
+
+
+
 
 #if 0
 // #include "lv_png.h"
@@ -692,7 +859,7 @@ void page_init()
 {
 	ks_esp_cam_init();												//lvgl初始化
 	start_logo();													//开机logo
-	// ksdiy_sys_init();												//驱动初始化
+	ksdiy_sys_init();												//驱动初始化
 	// del_page();														//删除当前页
 	// ksdiy_sys_info_init();											//系统信息初始化
 	// get_time(&ksdiy_sys_t.timeinfo);								//获取时间
