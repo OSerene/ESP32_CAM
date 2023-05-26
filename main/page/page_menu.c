@@ -13,7 +13,7 @@
 #include "app_anim.h"
 #include "lvgl_helpers.h"
 // #include "lv_port_indev.h"
-
+#include "number.h"
 #include <esp_system.h>
 #include "esp_log.h"
 #define ANIEND                      \
@@ -443,9 +443,9 @@ void page_menu_end()
 void page_menu_start()
 {
 	//获取芯片可用内存
-	printf("page_menu_start     esp_get_free_heap_size : %d  \n", esp_get_free_heap_size());
+	// printf("page_menu_start     esp_get_free_heap_size : %d  \n", esp_get_free_heap_size());
 	//获取从未使用过的最小内存
-	printf("page_menu_start     esp_get_minimum_free_heap_size : %d  \n", esp_get_minimum_free_heap_size());
+	// printf("page_menu_start     esp_get_minimum_free_heap_size : %d  \n", esp_get_minimum_free_heap_size());
 	page_menu_load();
 }
 uint8_t Menu_Choose(void)

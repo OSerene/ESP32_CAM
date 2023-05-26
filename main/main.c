@@ -122,7 +122,9 @@ void page_switch()
         //     break;
         case Disp_Menu:
             ESP_LOGI("Disp_Menu", "case Disp_Menu:");
-            move_task_menu(user_data);
+            // move_task_menu(user_data);
+            lv_obj_clean(lv_scr_act()); //清空页面scr_body
+            page_menu_start();
             break;
 #if 0
         case Disp_Cam:
