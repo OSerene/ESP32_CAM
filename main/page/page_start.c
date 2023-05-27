@@ -3,7 +3,7 @@
 #include "lvgl_compment.h"
 #include "page_start.h"
 #include "spage.h"
-// #include "app_wifi.h"
+#include "app_wifi.h"
 // #include "app_camera.h"
 #include "lv_png.h"
 // #include "page_baiduai.h"
@@ -14,13 +14,13 @@ LV_FONT_DECLARE(myFont);
 LV_IMG_DECLARE(kevin); //哔哩哔哩图片
 LV_IMG_DECLARE(coooool);
 LV_IMG_DECLARE(kevincoooool);
-// LV_IMG_DECLARE(airkiss);					  //微信配网
-// extern EventGroupHandle_t s_wifi_event_group; //wifi事件组
-// extern const int CONNECTED_BIT;
-// extern const int ESPTOUCH_DONE_BIT;
-// extern const int WIFI_SMART;
-// extern const int WIFI_CONNET_BIT;
-// extern const int MQTT_CONNET_BIT;
+LV_IMG_DECLARE(airkiss);					  //微信配网
+extern EventGroupHandle_t s_wifi_event_group; //wifi事件组
+extern const int CONNECTED_BIT;
+extern const int ESPTOUCH_DONE_BIT;
+extern const int WIFI_SMART;
+extern const int WIFI_CONNET_BIT;
+extern const int MQTT_CONNET_BIT;
 struct //loge界面元素
 {
 	lv_obj_t *label_smartconfig;
@@ -175,7 +175,7 @@ void start_logo()
 	lv_obj_set_style_local_text_font(label_speech, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &myFont);
 	lv_label_set_recolor(label_speech, true);				 /*Enable re-coloring by commands in the text*/
 	lv_label_set_align(label_speech, LV_LABEL_ALIGN_CENTER); /*Center aligned lines*/
-	lv_label_set_text(label_speech, "酷世DIY");
+	lv_label_set_text(label_speech, "Jimmy DIY");
 	lv_obj_set_width(label_speech, 150);
 	lv_obj_align(label_speech, NULL, LV_ALIGN_CENTER, 0, 30);
 	// obj_move(&c22, 0);
@@ -183,6 +183,187 @@ void start_logo()
 	lv_label_set_text(label_speech, " ");
 
 #endif
+}
+
+void lv_wifi_init()
+{
+	cont_head = lv_cont_create(scr, NULL);
+	//lv_cont_set_fit(cont_head, LV_FIT_NONE);
+	lv_cont_set_fit2(cont_head, LV_FIT_TIGHT, LV_FIT_NONE);
+	lv_cont_set_layout(cont_head, LV_LAYOUT_ROW_TOP);
+	lv_obj_set_size(cont_head, 160, 25);
+
+	static lv_style_t style_cont;
+	lv_style_set_pad_left(&style_cont, LV_STATE_DEFAULT, 0);
+	lv_style_set_bg_opa(&style_cont, LV_STATE_DEFAULT, 0);
+	lv_style_set_pad_top(&style_cont, LV_STATE_DEFAULT, 0);
+	lv_style_set_border_color(&style_cont, LV_STATE_DEFAULT, LV_COLOR_BLACK);
+	lv_style_set_border_width(&style_cont, LV_STATE_DEFAULT, 0);
+	lv_style_set_border_opa(&style_cont, LV_STATE_DEFAULT, 0);
+	lv_style_set_bg_color(&style_cont, LV_STATE_DEFAULT, LV_COLOR_BLACK); //设置屏幕背景
+	lv_obj_add_style(cont_head, LV_BTN_PART_MAIN, &style_cont);			  /*Default button style*/
+
+	//wifi图标
+	ksdiy_sys_t.ico.lv_wifi = lv_label_create(cont_head, NULL);
+	lv_label_set_recolor(ksdiy_sys_t.ico.lv_wifi, true);
+	lv_label_set_text(ksdiy_sys_t.ico.lv_wifi, "#00B300 " LV_SYMBOL_WIFI);
+	lv_obj_set_pos(ksdiy_sys_t.ico.lv_wifi, 0, 0); //设置坐标
+
+	static lv_obj_t *img44;
+	img44 = lv_img_create(scr, NULL);
+	lv_img_set_src(img44, &kevincoooool);
+	lv_obj_set_pos(img44, 58, 0);
+
+	//动画
+	compment_t chead;
+	chead.start = 240;
+	chead.end = 0;
+	chead.obj = cont_head;
+	chead.start_t = 1000;
+	chead.end_t = 600;
+	chead.cb = lv_anim_path_ease_out;
+	chead.funcb = (void *)lv_obj_set_x;
+	chead.next = NULL;
+
+	obj_move(&chead, 1);
+	move_free(&chead);
+
+	ksdiy_sys_t.state.wifi = 1;
+}
+
+/*
+配网
+*/
+void smartconfig_set()
+{
+	lv_obj_clean(scr_body);
+	lv_obj_clean(scr);
+	xTaskCreate(smartconfig_example_task, "smartconfig_task", 1024 * 2, NULL, 3, NULL);
+	static lv_obj_t *img;
+	// img = lv_img_create(scr, NULL);
+	// lv_obj_set_size(img, 240, 240);
+	// lv_img_set_src(img, &airkiss);
+	// lv_obj_set_pos(img, 240, 0);
+	img = lv_img_create(scr, NULL);
+	FILE *ff = fopen("/spiffs/airkiss.bin", "r");
+	if (ff == NULL)
+	{
+		ESP_LOGE("TAG", "Failed to open file for reading");
+		return;
+	}
+	fseek(ff, 0, SEEK_END);
+	long lSize = ftell(ff);
+	// rewind(ff);
+	fseek(ff, 0, SEEK_SET);
+	ESP_LOGI("TAG", "Lsize %ld", lSize);
+	static uint8_t first_in = 1;
+	if (first_in == 1)
+	{
+		first_in = 0;
+		airkiss_buff = (char *)malloc(sizeof(char) * lSize);
+	}
+	int br = fread(airkiss_buff, 1, lSize, ff);
+	ESP_LOGI("TAG", "Bytes read %d", br);
+	img_airkiss.data = (uint8_t *)airkiss_buff;
+	lv_img_set_src(img, &img_airkiss);
+	fclose(ff);
+	
+	cwx.start = 240;
+	cwx.end = 0;
+	cwx.obj = img;
+	cwx.start_t = 500;
+	cwx.end_t = 500;
+	cwx.cb = lv_anim_path_overshoot;
+	cwx.funcb = (void *)lv_obj_set_x;
+	cwx.next = NULL;
+	obj_move(&cwx, 1);
+
+	// page_logo.label_smartconfig = lv_label_create(scr_body, NULL);
+	// lv_label_set_long_mode(page_logo.label_smartconfig, LV_LABEL_LONG_BREAK); /*Break the long lines*/
+	// lv_label_set_recolor(page_logo.label_smartconfig, true);				  /*Enable re-coloring by commands in the text*/
+	// lv_label_set_align(page_logo.label_smartconfig, LV_LABEL_ALIGN_CENTER);	  /*Center aligned lines*/
+	// lv_obj_set_style_local_text_font(page_logo.label_smartconfig, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &myFont);
+	// lv_label_set_text(page_logo.label_smartconfig, "打开微信扫码\n或者\n打开ESP_TOUCH");
+	// lv_obj_set_width(page_logo.label_smartconfig, 120);
+	// lv_obj_align(page_logo.label_smartconfig, NULL, LV_ALIGN_CENTER, 60, 0);
+}
+static void event_handler_wifi(lv_obj_t *obj, lv_event_t event)
+{
+
+	if (event == LV_EVENT_VALUE_CHANGED)
+	{
+
+		if (lv_msgbox_get_active_btn(obj) == 0)
+		{
+			lv_msgbox_start_auto_close(obj, 0);
+			ESP_LOGI("WIFI", "start smartconfig");
+			smartconfig_set();
+			ksdiy_sys_t.state.wifi = 3;
+		}
+		else
+		{
+			lv_msgbox_start_auto_close(obj, 0);
+			ksdiy_sys_t.state.wifi = 0;
+		}
+	}
+}
+
+#if 0
+void switch_wifi()
+{
+	lv_obj_set_hidden(page_logo.bar_sys, 1);
+	lv_obj_set_hidden(page_logo.label_rate, 1);
+	static const char *btns[] = {"OK", "NO", ""};
+	lv_obj_t *mbox_wifi;
+	mbox_wifi = lv_msgbox_create(scr, NULL);
+	lv_obj_set_style_local_text_font(mbox_wifi, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &myFont);
+	lv_msgbox_set_text(mbox_wifi, "开启微信配网?");
+
+	lv_msgbox_add_btns(mbox_wifi, btns);
+	lv_obj_set_width(mbox_wifi, 200);
+	lv_obj_set_height(mbox_wifi, 50);
+	lv_obj_set_event_cb(mbox_wifi, event_handler_wifi);
+	lv_obj_align(mbox_wifi, NULL, LV_ALIGN_CENTER, 0, 0); /*Align to the corner*/
+
+	ksdiy_sys_t.group = lv_group_create();
+	lv_group_add_obj(ksdiy_sys_t.group, mbox_wifi); //加入解码组
+	lv_button_set_group(ksdiy_sys_t.group);
+	encoder_handler(1);
+}
+#endif
+
+void wifi_rate()
+{
+	EventBits_t uxBits;
+
+	lv_label_set_text(page_logo.label_rate, "连接WIFI");
+	lv_obj_align(page_logo.label_rate, NULL, LV_ALIGN_CENTER, 0, 30);
+	ANIEND
+	if (app_wifi_init() != ESP_OK)
+		smartconfig_set();
+	while (1)
+	{
+		uxBits = xEventGroupGetBits(s_wifi_event_group);
+		if (uxBits & CONNECTED_BIT) //配网成功
+			break;
+		vTaskDelay(pdMS_TO_TICKS(1));
+		lv_task_handler();
+	}
+	if (ksdiy_sys_t.state.wifi == 3) //如果开启微信配网
+	{
+		uxBits = xEventGroupWaitBits(s_wifi_event_group, WIFI_SMART, true, false, portMAX_DELAY);
+		if (uxBits & WIFI_SMART) //等待配网完成
+		{
+			cwx.start = 0;
+			cwx.end = -120;
+			obj_move(&cwx, 1);
+			lv_obj_del(page_logo.label_smartconfig);
+			ESP_LOGI("WIFI", "wx over");
+		}
+	}
+
+	lv_wifi_init();
+	ANIEND
 }
 
 void fans_rate()
@@ -253,7 +434,7 @@ void img_rate()
 void dev_init()
 {
 	show_rate(start_rate, 5);
-	// show_rate(wifi_rate, 25);
+	show_rate(wifi_rate, 25);
 
 	show_rate(time_rate, 50);
 	show_rate(fans_rate, 60);
