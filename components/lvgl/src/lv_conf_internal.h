@@ -124,7 +124,7 @@
 #  ifdef CONFIG_LV_DISP_DEF_REFR_PERIOD
 #    define LV_DISP_DEF_REFR_PERIOD CONFIG_LV_DISP_DEF_REFR_PERIOD
 #  else
-#    define  LV_DISP_DEF_REFR_PERIOD      30      /*[ms]*/
+#    define  LV_DISP_DEF_REFR_PERIOD      1      /*[ms]*/
 #  endif
 #endif
 
@@ -200,7 +200,7 @@
 #  ifdef CONFIG_LV_MEM_SIZE
 #    define LV_MEM_SIZE CONFIG_LV_MEM_SIZE
 #  else
-#    define  LV_MEM_SIZE    (32U * 1024U)
+#    define  LV_MEM_SIZE    (40U * 1024U)
 #  endif
 #endif
 

@@ -8,6 +8,12 @@
  * software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  * CONDITIONS OF ANY KIND, either express or implied.
  */
+
+#include "esp_err.h"
+#include "esp_log.h"
+#include "esp_attr.h"
+#include "esp_vfs.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,19 +84,19 @@ static void lv_tick_task(void *arg);
 static void guiTask(void *pvParameter);
 static void create_demo_application(void);
 
-// static void SPIFFS_Directory(char *path)
-// {
-// 	DIR *dir = opendir(path);
-// 	assert(dir != NULL);
-// 	while (true)
-// 	{
-// 		struct dirent *pe = readdir(dir);
-// 		if (!pe)
-// 			break;
-// 		ESP_LOGI(__FUNCTION__, "d_name=%s d_ino=%d d_type=%x", pe->d_name, pe->d_ino, pe->d_type);
-// 	}
-// 	closedir(dir);
-// }
+static void SPIFFS_Directory(char *path)
+{
+	DIR *dir = opendir(path);
+	assert(dir != NULL);
+	while (true)
+	{
+		struct dirent *pe = readdir(dir);
+		if (!pe)
+			break;
+		ESP_LOGI(__FUNCTION__, "d_name=%s d_ino=%d d_type=%x", pe->d_name, pe->d_ino, pe->d_type);
+	}
+	closedir(dir);
+}
 
 extern struct _ksdiy_sys_t ksdiy_sys_t;
 // extern page_t page_manage[8];
@@ -363,7 +369,7 @@ void app_main() {
     {
         ESP_LOGE(TAG, "success to mount or format filesystem");
     }
-	// SPIFFS_Directory("/spiffs/");
+	SPIFFS_Directory("/spiffs/");
 
     // Initialize NVS
 	ret = nvs_flash_init();
@@ -378,7 +384,7 @@ void app_main() {
     /* If you want to use a task to create the graphic, you NEED to create a Pinned task
      * Otherwise there can be problem such as memory corruption and so on.
      * NOTE: When not using Wi-Fi nor Bluetooth you can pin the guiTask to core 0 */
-    xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 0, NULL, 1);
+    xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 5, NULL, 1);
 
     adc_init();
 	// ESP_LOGI("esp-eye", "Please say 'Hi LeXin' to the board");
