@@ -19,6 +19,7 @@
 // #include "esp_vfs.h"
 // #include "esp_spiffs.h"
 #define SELECT_FONT_SPIFFS 1
+#define FZMW_FONT 1
 
 typedef struct
 {
@@ -41,6 +42,16 @@ typedef struct
 	uint8_t r;
 } glyph_dsc_t;
 
+#if FZMW_FONT
+
+static x_header_t __g_xbf_hd = {
+    .min = 0x000a,
+    .max = 0x9fa0,
+    .bpp = 4,
+};
+
+#else
+
 #if SELECT_FONT_SPIFFS
 static x_header_t __g_xbf_hd = {
 	.min = 0x0020,
@@ -53,6 +64,8 @@ static x_header_t __g_xbf_hd = {
     .max = 0x9fa0,
     .bpp = 4,
 };
+#endif
+
 #endif
 
 char *Font_buff = NULL;
@@ -171,6 +184,17 @@ static bool __user_font_get_glyph_dsc(const lv_font_t *font, lv_font_glyph_dsc_t
 	return false;
 }
 
+#if FZMW_FONT
+//FZMiaoWuS-GB,,-1
+//字模高度：25
+//XBF字体,外部bin文件
+lv_font_t myFont = {
+    .get_glyph_bitmap = __user_font_get_bitmap,
+    .get_glyph_dsc = __user_font_get_glyph_dsc,
+    .line_height = 25,
+    .base_line = 0,
+};
+#else
 //AliHYAiHei-Beta,,-1
 //字模高度：24
 //XBF字体,外部bin文件
@@ -180,4 +204,4 @@ lv_font_t myFont = {
 	.line_height = 24,
 	.base_line = 0,
 };
-
+#endif
