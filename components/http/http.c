@@ -1,4 +1,4 @@
-#if 0
+#if 1
 
 #include "http.h"
 #include "updata.h"
@@ -261,14 +261,14 @@ esp_err_t read_weather()
 {
 	static char city[30]={0};
 	static char key[30]={0};
-	if (read_nvs("city", city)) //获取哔哩哔哩uid
+	if (read_nvs("city", city)) 
 		ESP_LOGI(TAG, "获取到城市");
 	else
 	{
 		sprintf(city, "chengdu");
 		ESP_LOGI(TAG, "没有获取到城市，默认使用成都");
 	}
-	if (read_nvs("pass", key)) //获取哔哩哔哩uid
+	if (read_nvs("pass", key)) 
 		ESP_LOGI(TAG, "获取到心知密匙");
 	else
 	{
@@ -291,7 +291,7 @@ esp_err_t read_fans()
 	else
 	{
 		sprintf(str, "%s", uid);
-		save_nvs("uid", "59041601");
+		save_nvs("uid", "1581248870");
 		ESP_LOGI(TAG, "没有uid，使用默认uid");
 	}
 	ESP_LOGI(TAG, "%s", str);

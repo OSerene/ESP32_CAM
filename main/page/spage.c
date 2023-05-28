@@ -1,9 +1,9 @@
-#if 0
+#if 1
 
 #include "spage.h"
 #include "esp_log.h"
-// #include "page_menu.h"
-// #include "page_home.h"
+#include "page_menu.h"
+#include "page_home.h"
 // #include "page_wakeup.h"
 // #include "page_cam.h"
 // #include "page_fft.h"
@@ -18,20 +18,22 @@
 // #include "page_about.h"
 // #include "page_music.h"
 // #include "page_fft.h"
-// #include "updata.h"
-// #include "esp_spiffs.h"
-// #include "esp_vfs.h"
-// #include "esp_err.h"
-// #include "cJSON.h"
-// #include "mqtt_client.h"
+#include "updata.h"
+#include "esp_spiffs.h"
+#include "esp_vfs.h"
+#include "esp_err.h"
+#include "cJSON.h"
+#include "mqtt_client.h"
 // #include "app_camera.h"
-// #include "web_server.h"
-// #include "app_wifi.h"
+#include "web_server.h"
+#include "app_wifi.h"
+#include "lv_group.h"
+#include "http.h"
 
 extern struct _ksdiy_sys_t ksdiy_sys_t;
 page_t *page_head;
 extern lv_obj_t *cont_head;
-extern lv_group_t *group_button;
+// extern lv_group_t *group_button;
 page_t *add_page(page_t *page)
 {
     if (page == NULL) //页头初始化
@@ -66,7 +68,7 @@ page_t page_manage[20];
  */
 page_t *lv_page_menu_init(void)
 {
-    group_button = lv_group_create();
+    // group_button = lv_group_create();
     page_head = add_page(page_head); //建立链表头部
     // page_head->start = page_home_start;
     // page_head->end = page_home_end;
@@ -108,7 +110,7 @@ page_t *lv_page_menu_init(void)
     return page_head;
 }
 
-#if 0
+#if 1
 
 void save_clock(uint8_t clock_index, uint8_t s, uint8_t h, uint8_t m)
 {
@@ -286,6 +288,8 @@ void lv_ksdiy_web_init()
         lv_ico_web_show(1);
     }
 }
+
+#if 0
 void lv_ksdiy_cam_init()
 {
     // app_camera_init();
@@ -345,13 +349,15 @@ void lv_ksdiy_cam_init()
 }
 #endif
 
+#endif
+
 void ksdiy_sys_info_init()
 {
     ksdiy_sys_t.page = lv_page_menu_init(); //建立菜单页
     ksdiy_sys_t.state.sys_button = 0;
     ksdiy_sys_t.user_data = 0;
-    // ksdiy_sys_t.wp.follow = get_value_ksdiyfs(1);
-    // ksdiy_sys_t.wp.following = get_value_ksdiyfs(0);
+    ksdiy_sys_t.wp.follow = get_value_ksdiyfs(1);
+    ksdiy_sys_t.wp.following = get_value_ksdiyfs(0);
     // lv_ksdiy_web_init();
     // lv_ksdiy_cam_init();
     // app_menu_create();

@@ -234,8 +234,8 @@ esp_err_t wifi_init_sta()
     else
     {
         ESP_LOGI(TAG, "没获取到 SSID...使用默认");
-        memcpy(wifi_config.sta.ssid, "CMCC-", sizeof("CMCC-"));
-        memcpy(wifi_config.sta.password, "99999999", sizeof("99999999"));
+        memcpy(wifi_config.sta.ssid, "iQOONeo7", sizeof("iQOONeo7"));
+        memcpy(wifi_config.sta.password, "xujinwenqw12", sizeof("xujinwenqw12"));
         memcpy(ssid, wifi_config.sta.ssid, sizeof(wifi_config.sta.ssid));
         ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));

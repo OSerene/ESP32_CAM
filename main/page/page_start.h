@@ -40,6 +40,9 @@ extern "C"
 #include <stdlib.h>
 #include <string.h>
 
+#include <time.h>
+#include <sys/time.h>
+
 
     struct _ksdiy_ico
     {
@@ -97,7 +100,7 @@ extern "C"
         uint32_t user_data;        //切换界面
         lv_group_t *group;         //按键组
         struct _ksdiy_clock clock; //闹钟
-        // struct tm timeinfo;
+        struct tm timeinfo;
         struct _ksdiy_fensi wp;
     };
     void smartconfig_set(void);

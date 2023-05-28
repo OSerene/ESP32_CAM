@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.5)
 # set(EXTRA_COMPONENT_DIRS "../../components")
 # set(EXTRA_COMPONENT_DIRS "../../components/json")
 
-set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/components/spiffs)
+# set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/components/spiffs)
 
 if (NOT DEFINED PROJECT_NAME)
     include($ENV{IDF_PATH}/tools/cmake/project.cmake)
